@@ -1,0 +1,462 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>School Management System - Student Portal</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Segoe UI', Arial, sans-serif; background: linear-gradient(135deg, #4CAF50 0%, #45a049 100%); min-height: 100vh; padding: 20px; }
+        .container { max-width: 1000px; margin: 0 auto; background: white; border-radius: 15px; box-shadow: 0 10px 40px rgba(0,0,0,0.3); overflow: hidden; }
+        .header { padding: 30px; text-align: center; color: white; }
+        .content { padding: 30px; }
+        
+        /* LOGIN STYLES */
+        .login-container { max-width: 500px; margin: 50px auto; background: white; padding: 40px; border-radius: 15px; box-shadow: 0 10px 40px rgba(0,0,0,0.3); }
+        .login-container h1 { color: #333; margin-bottom: 30px; text-align: center; }
+        .login-form input { width: 100%; padding: 12px; margin-bottom: 15px; border: 2px solid #ddd; border-radius: 8px; font-size: 14px; }
+        .login-form input:focus { outline: none; border-color: #4CAF50; }
+        .login-form button { width: 100%; padding: 12px; background: #4CAF50; color: white; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; font-size: 16px; }
+        .login-form button:hover { background: #45a049; }
+        .login-error { color: #d32f2f; text-align: center; margin-bottom: 15px; font-weight: 600; }
+        .login-success { color: #28a745; text-align: center; margin-bottom: 15px; font-weight: 600; }
+        
+        /* COMMON STYLES */
+        .hidden { display: none !important; }
+        .section { background: #f8f9fa; padding: 20px; border-radius: 8px; margin-bottom: 20px; }
+        .section h2 { color: #333; margin-bottom: 15px; }
+        table { width: 100%; border-collapse: collapse; margin: 15px 0; }
+        th, td { padding: 10px; text-align: left; border: 1px solid #ddd; }
+        th { background: #4CAF50; color: white; }
+        tr:nth-child(even) { background: #f5f5f5; }
+        input[type="text"], input[type="email"], input[type="number"], input[type="password"], select { 
+            padding: 10px; width: 100%; border: 1px solid #ddd; border-radius: 5px; margin: 5px 0; font-size: 13px;
+        }
+        input:focus, select:focus { outline: none; border-color: #4CAF50; }
+        .btn { padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer; font-weight: 600; transition: all 0.3s; }
+        .btn-success { background: #4CAF50; color: white; }
+        .btn-success:hover { background: #45a049; }
+        .btn-secondary { background: #999; color: white; }
+        .btn-secondary:hover { background: #777; }
+        .alert { padding: 12px 15px; border-radius: 5px; margin-bottom: 15px; }
+        .alert-success { background: #d4edda; color: #155724; border-left: 4px solid #28a745; }
+        .alert-error { background: #f8d7da; color: #721c24; border-left: 4px solid #dc3545; }
+        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 15px; margin: 20px 0; }
+        .stat-card { background: linear-gradient(135deg, #4CAF50 0%, #45a049 100%); color: white; padding: 20px; border-radius: 8px; text-align: center; }
+        .stat-number { font-size: 24px; font-weight: bold; }
+        .stat-label { font-size: 11px; opacity: 0.9; margin-top: 5px; }
+        .top-bar { display: flex; justify-content: space-between; align-items: center; }
+        .mark-cell { font-weight: bold; background: #e8f4f8; }
+        .pass { color: #28a745; font-weight: bold; }
+        .fail { color: #d32f2f; font-weight: bold; }
+        .register-link { text-align: center; margin-top: 20px; }
+        .register-link a { color: #4CAF50; text-decoration: none; font-weight: 600; cursor: pointer; }
+        .register-link a:hover { text-decoration: underline; }
+    </style>
+</head>
+<body>
+    <!-- LOGIN SCREEN -->
+    <div id="loginScreen">
+        <div class="login-container">
+            <h1>👨‍🎓 Student Login</h1>
+            <div id="loginError" class="login-error hidden"></div>
+            <div id="loginSuccess" class="login-success hidden"></div>
+            
+            <!-- Login Form -->
+            <div id="loginForm">
+                <div class="login-form">
+                    <input type="text" id="loginUsername" placeholder="Username" autocomplete="off">
+                    <input type="password" id="loginPassword" placeholder="Password" autocomplete="off">
+                    <button onclick="studentLogin()">Login</button>
+                </div>
+                <div class="register-link">
+                    Don't have an account? <a onclick="showRegister()">Register here</a>
+                </div>
+            </div>
+
+            <!-- Registration Form -->
+            <div id="registerForm" style="display: none;">
+                <div class="login-form">
+                    <h2 style="text-align: center; margin-bottom: 20px; color: #333;">Create Account</h2>
+                    <input type="text" id="regUsername" placeholder="Choose Username" autocomplete="off">
+                    <input type="password" id="regPassword" placeholder="Create Password" autocomplete="off">
+                    <input type="password" id="regPasswordConfirm" placeholder="Confirm Password" autocomplete="off">
+                    <input type="text" id="regRollNumber" placeholder="Your Roll Number" autocomplete="off">
+                    <select id="regClass" style="margin: 5px 0;">
+                        <option value="">Select Your Class</option>
+                        <option value="1">Class 1</option><option value="2">Class 2</option>
+                        <option value="3">Class 3</option><option value="4">Class 4</option>
+                        <option value="5">Class 5</option><option value="6">Class 6</option>
+                        <option value="7">Class 7</option><option value="8">Class 8</option>
+                        <option value="9">Class 9</option><option value="10">Class 10</option>
+                        <option value="11">Class 11</option><option value="12">Class 12</option>
+                    </select>
+                    <button onclick="studentRegister()" style="margin-top: 10px;">Create Account</button>
+                    <p style="text-align: center; margin-top: 15px;">
+                        <a onclick="showLogin()" style="color: #4CAF50; text-decoration: none; font-weight: 600; cursor: pointer;">Back to Login</a>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- STUDENT PORTAL -->
+    <div id="studentPortal" class="hidden">
+        <div class="container">
+            <div class="header" style="background: linear-gradient(135deg, #4CAF50 0%, #45a049 100%);">
+                <div class="top-bar">
+                    <div>
+                        <h1>👨‍🎓 Student Portal</h1>
+                        <p id="studentInfo" style="margin-top: 5px; opacity: 0.9;"></p>
+                    </div>
+                    <button class="btn btn-secondary" onclick="studentLogout()">Logout</button>
+                </div>
+            </div>
+            <div class="content">
+                <div id="studentAlert" class="alert hidden"></div>
+
+                <!-- MY MARKS SECTION -->
+                <div class="section">
+                    <h2>📊 Term  I Testpaper marks</h2>
+                    <div style="overflow-x: auto;">
+                        <table id="marksTable">
+                            <thead>
+                                <tr>
+                                    <th>Subject 1</th>
+                                    <th>Subject 2</th>
+                                    <th>Subject 3</th>
+                                    <th>Subject 4</th>
+                                    <th>Subject 5</th>
+                                    <th>Subject 6</th>
+                                    <th>Subject 7</th>
+                                    <th>Total</th>
+                                    <th>Average</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody id="marksBody"></tbody>
+                        </table>
+                    </div>
+                    <div style="margin-top: 15px; padding: 15px; background: #f0f8ff; border-radius: 8px; border-left: 4px solid #4CAF50;">
+                        <p style="color: #333;"><strong>📌 Note:</strong> Your marks are private and only visible to you when you login with your username and password.</p>
+                    </div>
+                </div>
+
+                <!-- STATISTICS SECTION -->
+                <div class="section">
+                    <h2>📈 Your Statistics</h2>
+                    <div class="stats-grid">
+                        <div class="stat-card">
+                            <div class="stat-number" id="studentTotal">0</div>
+                            <div class="stat-label">Total Marks</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-number" id="studentAverage">0</div>
+                            <div class="stat-label">Average Marks</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-number" id="studentStatus" style="color: #ffffff;">-</div>
+                            <div class="stat-label">Status</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-number" id="studentClass">-</div>
+                            <div class="stat-label">Your Class</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ACCOUNT SECTION -->
+                <div class="section">
+                    <h2>🔐 Account Security</h2>
+                    <div style="background: #fff3cd; padding: 15px; border-radius: 8px; border-left: 4px solid #ff9800;">
+                        <p style="color: #333; margin-bottom: 10px;"><strong>⚠️ Important Security Tips:</strong></p>
+                        <ul style="margin-left: 20px; color: #333;">
+                            <li>Never share your password with anyone</li>
+                            <li>Use a strong password (mix of letters and numbers)</li>
+                            <li>Log out after viewing your marks</li>
+                            <li>Only access from trusted computers</li>
+                        </ul>
+                    </div>
+                    <button class="btn btn-secondary" onclick="changePassword()" style="margin-top: 15px;">Change Password</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- CHANGE PASSWORD MODAL -->
+    <div id="passwordModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000; justify-content: center; align-items: center;">
+        <div style="background: white; padding: 30px; border-radius: 15px; max-width: 400px; width: 90%;">
+            <h2 style="margin-bottom: 20px; color: #333;">Change Password</h2>
+            <div id="passwordError" class="alert alert-error hidden"></div>
+            <input type="password" id="oldPassword" placeholder="Current Password" style="margin-bottom: 10px;">
+            <input type="password" id="newPassword" placeholder="New Password" style="margin-bottom: 10px;">
+            <input type="password" id="confirmNewPassword" placeholder="Confirm New Password" style="margin-bottom: 15px;">
+            <div style="display: flex; gap: 10px;">
+                <button class="btn btn-success" onclick="updatePassword()" style="flex: 1;">Update</button>
+                <button class="btn btn-secondary" onclick="closePasswordModal()" style="flex: 1;">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        
+        document.addEventListener('keydown', function(e) {
+  if (e.ctrlKey && e.shiftKey && e.key.toLowerCase() === 'i') {
+    e.preventDefault(); // Prevent default action (open DevTools)
+  }
+});
+
+          // Disable right-click context menu
+  document.addEventListener('contextmenu', function(e) {
+    e.preventDefault();
+  });
+
+  function isCtrlShiftKey(e, key) {
+    return e.ctrlKey && e.shiftKey && e.key.toUpperCase() === key;
+  }
+
+  document.addEventListener('keydown', function(e) {
+    // Disable F12
+    if (e.key === "F12") {
+      e.preventDefault();
+    }
+    // Disable Ctrl+Shift+I, Ctrl+Shift+J, Ctrl+Shift+C
+    if (isCtrlShiftKey(e, "I") || isCtrlShiftKey(e, "J") || isCtrlShiftKey(e, "C")) {
+      e.preventDefault();
+    }
+    // Disable Ctrl+U
+    if (e.ctrlKey && e.key.toUpperCase() === "U") {
+      e.preventDefault();
+    }
+  });
+         window.addEventListener('load', function () {
+      document.addEventListener('contextmenu', function (event) {
+        event.preventDefault();               // Stop the default right-click menu
+        alert('You are not allowed to do that'); // Show your message
+      });
+    });
+        let allStudents = [];
+        let currentStudent = null;
+        let studentAccounts = {};
+
+        function loadData() {
+            const data = localStorage.getItem("studentDatabase");
+            allStudents = data ? JSON.parse(data) : [];
+            const accounts = localStorage.getItem("studentAccounts");
+            studentAccounts = accounts ? JSON.parse(accounts) : {};
+        }
+
+        function saveAccounts() {
+            localStorage.setItem("studentAccounts", JSON.stringify(studentAccounts));
+        }
+
+        function showAlert(msg, type) {
+            const alertEl = document.getElementById("studentAlert");
+            alertEl.textContent = msg;
+            alertEl.className = "alert alert-" + type;
+            alertEl.classList.remove("hidden");
+            setTimeout(() => alertEl.classList.add("hidden"), 3000);
+        }
+
+        function showRegister() {
+            document.getElementById("loginForm").style.display = "none";
+            document.getElementById("registerForm").style.display = "block";
+            document.getElementById("loginError").classList.add("hidden");
+        }
+
+        function showLogin() {
+            document.getElementById("registerForm").style.display = "none";
+            document.getElementById("loginForm").style.display = "block";
+            document.getElementById("loginError").classList.add("hidden");
+        }
+
+        function studentRegister() {
+            const username = document.getElementById("regUsername").value.trim();
+            const password = document.getElementById("regPassword").value;
+            const passwordConfirm = document.getElementById("regPasswordConfirm").value;
+            const rollNumber = document.getElementById("regRollNumber").value.trim();
+            const classNum = document.getElementById("regClass").value;
+
+            if (!username || !password || !passwordConfirm || !rollNumber || !classNum) {
+                document.getElementById("loginError").textContent = "❌ Please fill all fields!";
+                document.getElementById("loginError").classList.remove("hidden");
+                return;
+            }
+
+            if (password !== passwordConfirm) {
+                document.getElementById("loginError").textContent = "❌ Passwords do not match!";
+                document.getElementById("loginError").classList.remove("hidden");
+                return;
+            }
+
+            if (password.length < 4) {
+                document.getElementById("loginError").textContent = "❌ Password must be at least 4 characters!";
+                document.getElementById("loginError").classList.remove("hidden");
+                return;
+            }
+
+            if (studentAccounts[username]) {
+                document.getElementById("loginError").textContent = "❌ Username already exists!";
+                document.getElementById("loginError").classList.remove("hidden");
+                return;
+            }
+
+            // Check if student exists in database
+            const student = allStudents.find(s => s.roll == rollNumber && s.class == classNum);
+            if (!student) {
+                document.getElementById("loginError").textContent = "❌ No student found with this roll number in class " + classNum + "!";
+                document.getElementById("loginError").classList.remove("hidden");
+                return;
+            }
+
+            // Create account
+            studentAccounts[username] = {
+                password: password,
+                studentId: student.id,
+                rollNumber: rollNumber,
+                class: classNum
+            };
+
+            saveAccounts();
+            document.getElementById("loginError").classList.add("hidden");
+            document.getElementById("loginSuccess").textContent = "✅ Account created successfully! You can now login.";
+            document.getElementById("loginSuccess").classList.remove("hidden");
+
+            setTimeout(() => {
+                document.getElementById("regUsername").value = "";
+                document.getElementById("regPassword").value = "";
+                document.getElementById("regPasswordConfirm").value = "";
+                document.getElementById("regRollNumber").value = "";
+                document.getElementById("regClass").value = "";
+                showLogin();
+                document.getElementById("loginSuccess").classList.add("hidden");
+            }, 2000);
+        }
+
+        function studentLogin() {
+            loadData();
+            const username = document.getElementById("loginUsername").value.trim();
+            const password = document.getElementById("loginPassword").value;
+
+            if (!username || !password) {
+                document.getElementById("loginError").textContent = "❌ Please enter username and password!";
+                document.getElementById("loginError").classList.remove("hidden");
+                return;
+            }
+
+            const account = studentAccounts[username];
+            if (!account || account.password !== password) {
+                document.getElementById("loginError").textContent = "❌ Invalid username or password!";
+                document.getElementById("loginError").classList.remove("hidden");
+                return;
+            }
+
+            // Find student
+            const student = allStudents.find(s => s.id === account.studentId);
+            if (!student) {
+                document.getElementById("loginError").textContent = "❌ Student record not found!";
+                document.getElementById("loginError").classList.remove("hidden");
+                return;
+            }
+
+            currentStudent = { ...student, username: username };
+            document.getElementById("loginScreen").classList.add("hidden");
+            document.getElementById("studentPortal").classList.remove("hidden");
+            document.getElementById("studentInfo").textContent = `${student.name} - Class ${student.class}`;
+            document.getElementById("loginUsername").value = "";
+            document.getElementById("loginPassword").value = "";
+            displayStudentMarks();
+        }
+
+        function studentLogout() {
+            if (confirm("Are you sure you want to logout?")) {
+                currentStudent = null;
+                document.getElementById("studentPortal").classList.add("hidden");
+                document.getElementById("loginScreen").classList.remove("hidden");
+                document.getElementById("loginUsername").value = "";
+                document.getElementById("loginPassword").value = "";
+                document.getElementById("loginError").classList.add("hidden");
+            }
+        }
+
+        function displayStudentMarks() {
+            const tbody = document.getElementById("marksBody");
+            tbody.innerHTML = "";
+
+            const total = currentStudent.marks.reduce((a, b) => a + b, 0);
+            const average = (total / 7).toFixed(1);
+            const status = total >= 50 ? "✅ PASS" : "❌ FAIL";
+
+            let html = "<tr>";
+            currentStudent.marks.forEach(m => {
+                html += `<td class="mark-cell">${m}</td>`;
+            });
+            html += `<td class="mark-cell">${total}</td>`;
+            html += `<td class="mark-cell">${average}</td>`;
+            html += `<td class="${total >= 50 ? 'pass' : 'fail'}">${status}</td>`;
+            html += "</tr>";
+
+            tbody.innerHTML = html;
+
+            // Update statistics
+            document.getElementById("studentTotal").textContent = total;
+            document.getElementById("studentAverage").textContent = average;
+            document.getElementById("studentStatus").textContent = total >= 50 ? "PASS ✅" : "FAIL ❌";
+            document.getElementById("studentStatus").className = "stat-number " + (total >= 50 ? "pass" : "fail");
+            document.getElementById("studentClass").textContent = currentStudent.class;
+        }
+
+        function changePassword() {
+            document.getElementById("passwordModal").style.display = "flex";
+            document.getElementById("oldPassword").value = "";
+            document.getElementById("newPassword").value = "";
+            document.getElementById("confirmNewPassword").value = "";
+            document.getElementById("passwordError").classList.add("hidden");
+        }
+
+        function closePasswordModal() {
+            document.getElementById("passwordModal").style.display = "none";
+        }
+
+        function updatePassword() {
+            const oldPass = document.getElementById("oldPassword").value;
+            const newPass = document.getElementById("newPassword").value;
+            const confirmPass = document.getElementById("confirmNewPassword").value;
+
+            if (!oldPass || !newPass || !confirmPass) {
+                document.getElementById("passwordError").textContent = "❌ Please fill all fields!";
+                document.getElementById("passwordError").classList.remove("hidden");
+                return;
+            }
+
+            if (studentAccounts[currentStudent.username].password !== oldPass) {
+                document.getElementById("passwordError").textContent = "❌ Current password is incorrect!";
+                document.getElementById("passwordError").classList.remove("hidden");
+                return;
+            }
+
+            if (newPass !== confirmPass) {
+                document.getElementById("passwordError").textContent = "❌ New passwords do not match!";
+                document.getElementById("passwordError").classList.remove("hidden");
+                return;
+            }
+
+            if (newPass.length < 4) {
+                document.getElementById("passwordError").textContent = "❌ Password must be at least 4 characters!";
+                document.getElementById("passwordError").classList.remove("hidden");
+                return;
+            }
+
+            studentAccounts[currentStudent.username].password = newPass;
+            saveAccounts();
+            showAlert("✅ Password changed successfully!", "success");
+            closePasswordModal();
+        }
+
+        window.onload = () => {
+            loadData();
+            document.getElementById("loginUsername").focus();
+        };
+    </script>
+</body>
+</html>
